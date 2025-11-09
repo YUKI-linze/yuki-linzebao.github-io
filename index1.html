@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>自定义</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #ffd1dc; /* 粉色背景 */
+            font-family: "Microsoft YaHei", sans-serif;
+        }
+        .container {
+            text-align: center;
+            padding: 20px;
+        }
+        .icon {
+            width: 120px;
+            height: 120px;
+            margin: 20px auto;
+            background: url('https://wanghaorong.oss-cn-shenzhen.aliyuncs.com/fa57652b9ab1a7d8e926e5a40f950a18.png') center no-repeat;
+            background-size: cover;
+        }
+        .question {
+            font-size: 24px;
+            color: #663366;
+            margin-bottom: 30px;
+        }
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+        }
+        button {
+            padding: 15px 30px;
+            font-size: 18px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            color: white;
+            transition: all 0.3s ease;
+            min-width: 120px;
+            min-height: 50px;
+        }
+        .confirm {
+            background-color: #f48fb1;
+        }
+        .deny {
+            background-color: #64b5f6;
+        }
+        .result {
+            font-size: 28px;
+            color: #ec407a;
+            margin-top: 30px;
+            display: none;
+        }
+        /* 确认后的第一张专属图片 */
+        .confirm-img1 {
+            width: 250px;
+            height: 250px;
+            margin: 20px auto;
+            background: url('https://wanghaorong.oss-cn-shenzhen.aliyuncs.com/ea009077b63e6bc40b638e230b38e0e6.png') center no-repeat;
+            background-size: cover;
+            display: none;
+        }
+        /* 确认后的第二张专属图片 */
+        .confirm-img2 {
+            width: 200px;
+            height: 200px;
+            margin: 10px auto;
+            background: url('https://wanghaorong.oss-cn-shenzhen.aliyuncs.com/703ea21ca75aeadc9e0e1d3f6a1b7e55.png') center no-repeat;
+            background-size: cover;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 初始图标（点击否认切换，点击确认恢复） -->
+        <div class="icon" id="icon"></div>
+        <p class="question" id="question">有没有想我？</p >
+        <div class="buttons" id="buttons">
+            <button class="confirm" id="confirm">非常想！</button>
+            <button class="deny" id="deny">没有</button>
+        </div>
+        <!-- 确认后的结果文字 -->
+        <p class="result" id="result">♡ 我也非常想你！！！♡</p >
+        <!-- 确认后的两张专属图片 -->
+        <div class="confirm-img1" id="confirmImg1"></div>
+        <div class="confirm-img2" id="confirmImg2"></div>
+    </div>
+
+    <script>
+        const confirmBtn = document.getElementById('confirm');
+        const denyBtn = document.getElementById('deny');
+        const icon = document.getElementById('icon');
+        const result = document.getElementById('result');
+        const confirmImg1 = document.getElementById('confirmImg1');
+        const confirmImg2 = document.getElementById('confirmImg2');
+        const question = document.getElementById('question');
+        const buttons = document.getElementById('buttons');
+
+        // 配置项
+        const initialImage = 'https://img.icons8.com/fluency/96/000000/heart.png'; // 初始图标
+        const denyImageList = [ // 点击否认切换的图片（4张）
+        "https://wanghaorong.oss-cn-shenzhen.aliyuncs.com/6694acca53984a0b67116e029db92fce.png",
+            "https://wanghaorong.oss-cn-shenzhen.aliyuncs.com/37520208ec61a25203c50459c5b3ef21.png",
+            "https://wanghaorong.oss-cn-shenzhen.aliyuncs.com/e3dccd7e9d3695416d06d47302e211dc.png",
+            "https://wanghaorong.oss-cn-shenzhen.aliyuncs.com/bc448b83087274671db307c664cf85c1.png"
+        ];
+        const confirmImage2 = 'https://wanghaorong.oss-cn-shenzhen.aliyuncs.com/703ea21ca75aeadc9e0e1d3f6a1b7e55.png'; // 确认后图片1
+        const confirmImage1 = 'https://cunchuyinyue.oss-cn-guangzhou.aliyuncs.com/80b84c8b7672862077a401c64334da47.jpg'; // 确认后图片2
+        const denyTextList = ["你认真的吗？", "再想想嘛", "我会难过的", "别这样呀"];
+        const maxClicks = 4;
+        const confirmMaxScale = 2;
+        const denyMinScale = 0.4;
+
+        let clickCount = 0;
+
+        // 否认按钮悬浮换文字
+        denyBtn.addEventListener('mouseover', () => {
+            if (clickCount < maxClicks) {
+                denyBtn.textContent = denyTextList[clickCount];
+            }
+        });
+
+        // 否认按钮点击事件
+        denyBtn.addEventListener('click', () => {
+            if (clickCount < maxClicks) {
+                clickCount++;
+                // 确认按钮放大
+                confirmBtn.style.transform = `scale(${1 + (confirmMaxScale - 1) * (clickCount / maxClicks)})`;
+                // 否认按钮缩小
+                denyBtn.style.transform = `scale(${1 - (1 - denyMinScale) * (clickCount / maxClicks)})`;
+                // 切换否认图片
+                icon.style.backgroundImage = `url('${denyImageList[clickCount - 1]}')`;
+                // 4次后否认按钮消失
+                if (clickCount === maxClicks) {
+                    denyBtn.style.display = 'none';
+                    confirmBtn.style.transform = `scale(${confirmMaxScale})`;
+                }
+            }
+        });
+
+        // 确认按钮点击事件（核心）
+        confirmBtn.addEventListener('click', () => {
+            // 隐藏问题和按钮
+            question.style.display = 'none';
+            buttons.style.display = 'none';
+            // 显示结果文字和两张专属图片
+            result.style.display = 'block';
+            confirmImg1.style.display = 'block';
+            confirmImg2.style.display = 'block';
+            // 恢复初始图标（替换否认后的图片）
+            icon.style.backgroundImage = `url('${initialImage}')`;
+            // 自定义确认后图片（可替换为自己的链接）
+            confirmImg1.style.backgroundImage = `url('${confirmImage1}')`;
+            confirmImg2.style.backgroundImage = `url('${confirmImage2}')`;
+        });
+    </script>
+</body>
+</html>
